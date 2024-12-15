@@ -29,6 +29,7 @@ local Success, Error = pcall(function()
 	local CurrentTool: Tool?
 
 	-- Test if hooking is enabled
+	NO_HOOKING = typeof(hookfunction) ~= "function"
 	hookfunction = (typeof(hookfunction) == "function" and hookfunction) or function(...) end
 	hookmetamethod = (typeof(hookmetamethod) == "function" and hookmetamethod) or function(...) end
 
