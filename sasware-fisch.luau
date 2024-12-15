@@ -29,15 +29,10 @@ local Success, Error = pcall(function()
 	local CurrentTool: Tool?
 
 	-- Test if hooking is enabled
-	if not (hookfunction and hookmetamethod) then
-		hookfunction = function(...) end
-		hookmetamethod = function(...) end
-		NO_HOOKING = true
-	end
+	hookfunction = (typeof(hookfunction) == "function" and hookfunction) or function(...) end
+	hookmetamethod = (typeof(hookmetamethod) == "function" and hookmetamethod) or function(...) end
 
-	if not setthreadidentity then
-		setthreadidentity = function(...) end -- i hate you solara
-	end
+	setthreadidentity = (typeof(setthreadidentity) == "function" and setthreadidentity) or function(...) end
 
 	local Toasts
 
