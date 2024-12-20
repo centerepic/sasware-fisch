@@ -930,10 +930,14 @@ local Success, Error = pcall(function()
 		local ShipwrightNPC = Utils.GetNPC("Shipwright", true)
 
 		if not ShipwrightNPC then
-			Utils.GenericToast(3, "Shipwright not found.")
-			UI.Library:Toggle()
-			return
-		end
+	            -- Fallback to Moosewoods Shipwright NPC
+	            LocalPlayer:RequestStreamAroundAsync(Vector3.new(357.97259521484375, 133.615966796875, 258.154541015625), math.huge)
+	            ShipwrightNPC = Interface.NPCs:WaitForChild("Moosewood Shipwright", math.huge)
+	
+	            if ShipwrightNPC.ModelStreamingMode ~= Enum.ModelStreamingMode.Persistent then
+	                ShipwrightNPC.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	            end
+	        end
 
 		if not BoatName then
 			Utils.GenericToast(3, "Please select a boat.")
