@@ -1346,41 +1346,43 @@ local Success, Error = pcall(function()
 
 	local AutoCastCoroutine = coroutine.create(function()
 		local LastCastAttempt = 0
+        local ResetCooldown = 6 -- Cooldown duration in seconds
 
-		while task.wait(0.3) do
-			if GetToggleValue("AutoCast") then
-				pcall(function()
-					if not CurrentTool then
-						return
-					end
-
-					local Values = CurrentTool:FindFirstChild("values")
-					if CurrentTool and Values then
-						local Events = CurrentTool:FindFirstChild("events")
-
-						-- sometimes the game freaks out and gets stuck after reeling in with blatant autoreel and we need to fix it
-						if
-							Values:FindFirstChild("bite")
-							and Values.bite.Value == true
-							and Values.casted.Value == true
-						then
-							if (not LocalPlayer.PlayerGui:FindFirstChild("reel")) and tick() - LastCastAttempt > 5 then
-								ResetTool()
-							end
-						end
-
-						-- another fix
-						if
-							Utils.CountInstances(LocalPlayer.PlayerGui, "reel") > 1
-						then
-							-- reeling is broken, reset tool and delete the glitched reel UI
-							ResetTool()
-							for _, Child in next, LocalPlayer.PlayerGui:GetChildren() do
-								if Child.Name == "reel" then
-									Child:Destroy()
-								end
-							end
-						end
+        while task.wait(0.1) do
+            if GetToggleValue("AutoCast") then
+                pcall(function()
+                    if not CurrentTool then
+                        return
+                    end
+        
+                    local Values = CurrentTool:FindFirstChild("values")
+                    if CurrentTool and Values then
+                        local Events = CurrentTool:FindFirstChild("events")
+        
+                        -- Fix for tool resetting spam
+                        if
+                            Values:FindFirstChild("bite")
+                            and Values.bite.Value == true
+                            and Values.casted.Value == true
+                        then
+                            if (not LocalPlayer.PlayerGui:FindFirstChild("reel")) and (tick() - LastResetAttempt > ResetCooldown) then
+                                LastResetAttempt = tick()
+                                ResetTool()
+                            end
+                        end
+        
+                        -- Another fix
+                        if Utils.CountInstances(LocalPlayer.PlayerGui, "reel") > 1 then
+                            if tick() - LastResetAttempt > ResetCooldown then
+                                LastResetAttempt = tick()
+                                ResetTool()
+                                for _, Child in next, LocalPlayer.PlayerGui:GetChildren() do
+                                    if Child.Name == "reel" then
+                                        Child:Destroy()
+                                    end
+                                end
+                            end
+                        end
 
 
 						if Values.casted.Value == false then
