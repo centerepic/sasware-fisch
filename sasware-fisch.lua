@@ -576,8 +576,10 @@ local Success, Error = pcall(function()
 
 	local Window = Library:CreateWindow({
 		Title = Title .. " | Fisch | " .. tostring(Version) .. SubVersion,
-		Center = true,
+		Center = true,	
 		AutoShow = true,
+		Resizable = true,
+		ShowCustomCursor = false,
 	})
 
 	local Tabs = {
@@ -643,10 +645,27 @@ local Success, Error = pcall(function()
 		Tooltip = "Reels in fish perfectly!",
 	})
 
-	OtherGroup:AddToggle("AutoShake", {
-		Text = "Auto shake",
+	OtherGroup:AddToggle("AutoShakeNav", {
+		Text = "Auto shake (Navigation)",
 		Default = false,
 		Tooltip = "Automatically shakes the rod.",
+		Callback = function(Value: boolean)
+			if Value then
+				UI.Toggles.AutoShakeClick:SetValue(false)
+			end
+		end,
+	})
+
+	OtherGroup:AddToggle("AutoShakeClick", {
+		Text = "Auto shake (Click)",
+		Default = false,
+		Tooltip = "Automatically shakes the rod.",
+		Callback = function(Value: boolean)
+			if Value then
+				UI.Toggles.AutoShakeNav:SetValue(false)
+				UI.Toggles.CenterShake:SetValue(false)
+			end
+		end,
 	})
 
 	OtherGroup:AddToggle("CenterShake", {
@@ -1266,7 +1285,7 @@ local Success, Error = pcall(function()
 				SafeZone.AnchorPoint = Vector2.new(0.5, 0.5)
 			end
 
-			if GetToggleValue("AutoShake") then
+			if GetToggleValue("AutoShakeNav") then
 				local Connection = SafeZone.ChildAdded:Connect(function(Child)
 					if Child:IsA("ImageButton") then
 						local Done = false
@@ -1291,6 +1310,18 @@ local Success, Error = pcall(function()
 					wait()
 				until not SafeZone:IsDescendantOf(LocalPlayer.PlayerGui)
 				Connection:Disconnect()
+			end
+
+			if GetToggleValue("AutoShakeClick") then
+				while LocalPlayer.PlayerGui:FindFirstChild("shakeui") do
+					pcall(function()
+						LocalPlayer.PlayerGui.shakeui.safezone.button.Size = UDim2.new(1000,0, 1000,0)
+						VirtualUser:Button1Down(Vector2.new(1, 1))
+						VirtualUser:Button1Up(Vector2.new(1, 1))
+						LocalPlayer.PlayerGui.shakeui.safezone.FindFirstChild("button"):Destroy()
+					end)
+					wait()
+				end
 			end
 		end
 
